@@ -1,0 +1,57 @@
+<div class="login-page">
+  <mat-card class="login-card">
+    <div class="brand">
+      <mat-icon class="brand-icon">hub</mat-icon>
+      <h1>OAuthService</h1>
+      <p class="subtitle">Sign in with your Google account to continue</p>
+    </div>
+
+    <mat-button-toggle-group
+      class="mode-toggle"
+      [value]="mode()"
+      (change)="setMode($event.value)"
+      aria-label="Sign in or sign up"
+    >
+      <mat-button-toggle value="signin">Sign In</mat-button-toggle>
+      <mat-button-toggle value="signup">Sign Up</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <div class="google-button-wrap">
+      @if (loadingGoogle()) {
+        <mat-spinner diameter="32"></mat-spinner>
+      }
+      <div #googleButton></div>
+    </div>
+
+    @if (microsoftReady()) {
+      <div class="divider"><span>or</span></div>
+
+      <button
+        mat-stroked-button
+        class="microsoft-button"
+        type="button"
+        [disabled]="loadingMicrosoft()"
+        (click)="signInWithMicrosoft()"
+      >
+        @if (loadingMicrosoft()) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <svg class="ms-logo" viewBox="0 0 21 21" width="18" height="18" aria-hidden="true">
+            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+            <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+          </svg>
+        }
+        Sign in with Microsoft
+      </button>
+    }
+
+    @if (errorMessage()) {
+      <p class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMessage() }}
+      </p>
+    }
+  </mat-card>
+</div>

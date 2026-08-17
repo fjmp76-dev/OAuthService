@@ -1,0 +1,54 @@
+.users-page h1 {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+}
+
+.empty-hint {
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+  padding: 24px 0;
+}
+
+.users-table {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.delete-icon:not(:disabled) {
+  color: var(--mat-sys-error);
+}
+
+.admin-chip {
+  background: var(--mat-sys-tertiary-container) !important;
+  color: var(--mat-sys-on-tertiary-container) !important;
+}
+
+@media (max-width: 640px) {
+  .users-table {
+    display: block;
+  }
+
+  .users-table ::ng-deep .mat-mdc-header-row {
+    display: none;
+  }
+
+  .users-table ::ng-deep tr.mat-mdc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  .users-table ::ng-deep tr.mat-mdc-row::before {
+    content: attr(data-label);
+    grid-column: 1 / -1;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .users-table ::ng-deep td.mat-mdc-cell {
+    border: none;
+    padding: 2px 4px;
+  }
+}

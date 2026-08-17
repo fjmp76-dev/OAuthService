@@ -1,0 +1,40 @@
+<div class="chat-panel">
+  <div class="history">
+    @if (history().length === 0) {
+      <p class="empty-hint">Ask anything about your Plex library — standard LLM mode.</p>
+    }
+
+    @for (message of history(); track message.timestamp) {
+      <div class="bubble" [class]="message.role">
+        <p class="bubble-text">{{ message.text }}</p>
+
+        @if (message.context?.length) {
+          <div class="sources">
+            <span class="sources-label">Sources</span>
+            <mat-chip-set>
+              @for (item of message.context; track item.ratingKey) {
+                <mat-chip>{{ item.title }} ({{ item.score | number: '1.0-2' }})</mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+        }
+      </div>
+    }
+
+    <div #scrollAnchor></div>
+  </div>
+
+  @if (pending()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <div class="composer">
+    <mat-form-field appearance="outline" class="composer-field">
+      <mat-label>Ask a question</mat-label>
+      <textarea matInput [formControl]="questionControl" rows="1" (keydown.enter)="$event.preventDefault(); send()"></textarea>
+    </mat-form-field>
+    <button mat-icon-button color="primary" type="button" [disabled]="pending() || !questionControl.value.trim()" (click)="send()">
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 420px;
+}
+
+.engine-toggle {
+  align-self: flex-start;
+  margin-bottom: 12px;
+}
+
+.history {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 4px 12px;
+}
+
+.empty-hint {
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+  margin-top: 40px;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: var(--mat-sys-surface-container-high);
+}
+
+.bubble-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.bubble.assistant {
+  align-self: flex-start;
+}
+
+.bubble.error {
+  align-self: flex-start;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.sources,
+.tool-calls {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sources-label,
+.tool-calls-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.tool-call {
+  font-size: 0.85rem;
+}
+
+.tool-call pre {
+  margin: 4px 0 0;
+  padding: 8px;
+  background: var(--mat-sys-surface-container-lowest);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.8rem;
+}
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.composer-field {
+  flex: 1;
+}

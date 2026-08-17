@@ -1,0 +1,49 @@
+<div class="users-page">
+  <h1>Registered Users</h1>
+
+  @if (users().length === 0) {
+    <p class="empty-hint">No users registered yet.</p>
+  } @else {
+    <table mat-table [dataSource]="users()" class="users-table">
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let user" data-label="Email">{{ user.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let user" data-label="Name">{{ user.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <td mat-cell *matCellDef="let user" data-label="Role">
+          <mat-chip [class.admin-chip]="user.isAdmin">{{ user.isAdmin ? 'Admin' : 'User' }}</mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef>Created At</th>
+        <td mat-cell *matCellDef="let user" data-label="Created At">{{ user.createdAt | date: 'medium' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let user" data-label="Actions">
+          <button
+            mat-icon-button
+            class="delete-icon"
+            [disabled]="user.isAdmin"
+            [matTooltip]="user.isAdmin ? 'You cannot delete the admin account' : 'Delete user'"
+            (click)="deleteUser(user.email, user.name)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" [attr.data-label]="row.name"></tr>
+    </table>
+  }
+</div>

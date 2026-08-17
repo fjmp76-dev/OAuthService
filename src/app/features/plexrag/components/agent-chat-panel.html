@@ -1,0 +1,48 @@
+<div class="chat-panel">
+  <div class="history">
+    @if (history().length === 0) {
+      <p class="empty-hint">Ask the agent to look things up and act on your Plex library.</p>
+    }
+
+    @for (message of history(); track message.timestamp) {
+      <div class="bubble" [class]="message.role">
+        <p class="bubble-text">{{ message.text }}</p>
+
+        @if (message.toolCalls?.length) {
+          <div class="tool-calls">
+            <span class="tool-calls-label">Tool calls</span>
+            <mat-accordion>
+              @for (call of message.toolCalls; track $index) {
+                <mat-expansion-panel class="tool-call">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>{{ call.tool }}</mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <p><strong>Arguments</strong></p>
+                  <pre>{{ call.argumentsJson }}</pre>
+                  <p><strong>Result</strong></p>
+                  <pre>{{ call.result }}</pre>
+                </mat-expansion-panel>
+              }
+            </mat-accordion>
+          </div>
+        }
+      </div>
+    }
+
+    <div #scrollAnchor></div>
+  </div>
+
+  @if (pending()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <div class="composer">
+    <mat-form-field appearance="outline" class="composer-field">
+      <mat-label>Ask a question</mat-label>
+      <textarea matInput [formControl]="questionControl" rows="1" (keydown.enter)="$event.preventDefault(); send()"></textarea>
+    </mat-form-field>
+    <button mat-icon-button color="primary" type="button" [disabled]="pending() || !questionControl.value.trim()" (click)="send()">
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+</div>
