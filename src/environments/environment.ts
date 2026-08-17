@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://your-plexrag-api.example.com',
-  googleClientId: 'REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com',
-  microsoftClientId: 'REPLACE_WITH_YOUR_MICROSOFT_ENTRA_APP_CLIENT_ID'
+  apiBaseUrl: 'https://plexrag-api.fjmp76.com',
+  googleClientId: '241613390950-2g2psec2f71t331k8e4re60ns5ruv08c.apps.googleusercontent.com',
+  microsoftClientId: '10702fe0-d01f-4997-b9b9-d66f15671d41'
 };
