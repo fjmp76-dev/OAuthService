@@ -23,9 +23,10 @@ export class IndexingPage {
   private readonly api = inject(IndexingApiService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly displayedColumns = ['id', 'title', 'type', 'itemCount'];
+  readonly displayedColumns = ['id', 'title', 'type'];
   readonly sections = signal<LibrarySection[]>([]);
   readonly status = signal<IndexStatus>(INITIAL_INDEX_STATUS);
+  readonly statusPlex = signal<IndexStatus>(INITIAL_INDEX_STATUS);
   readonly loadingSections = signal(true);
   readonly loadError = signal<string | null>(null);
 
@@ -34,7 +35,13 @@ export class IndexingPage {
     return s.sectionsTotal > 0 ? Math.round((s.sectionsDone / s.sectionsTotal) * 100) : 0;
   });
 
+  readonly progressPercentPlex = computed(() => {
+    const s = this.statusPlex();
+    return s.sectionsTotal > 0 ? Math.round((s.sectionsDone / s.sectionsTotal) * 100) : 0;
+  });
+
   private pollSubscription: Subscription | null = null;
+  private pollSubscriptionPlex: Subscription | null = null;
 
   constructor() {
     forkJoin({
@@ -55,7 +62,10 @@ export class IndexingPage {
       }
     });
 
-    this.destroyRef.onDestroy(() => this.pollSubscription?.unsubscribe());
+    this.destroyRef.onDestroy(() => {
+      this.pollSubscription?.unsubscribe();
+      this.pollSubscriptionPlex?.unsubscribe();
+    });
   }
 
   reindexAll(): void {
@@ -67,6 +77,21 @@ export class IndexingPage {
         if (started) {
           this.api.getIndexStatus().subscribe((status) => this.status.set(status));
           this.startPolling();
+        }
+      },
+      error: (err: Error) => this.loadError.set(err.message)
+    });
+  }
+
+  reindexPlex(): void {
+    if (this.statusPlex().running) {
+      return;
+    }
+    this.api.triggerPlexReindex().subscribe({
+      next: (started) => {
+        if (started) {
+          this.api.getIndexStatus().subscribe((status) => this.statusPlex.set(status));
+          this.startPollingPlex();
         }
       },
       error: (err: Error) => this.loadError.set(err.message)
@@ -87,6 +112,25 @@ export class IndexingPage {
         if (!status.running) {
           this.pollSubscription?.unsubscribe();
           this.pollSubscription = null;
+          this.api.getLibrarySections().subscribe((sections) => this.sections.set(sections));
+        }
+      });
+  }
+
+  private startPollingPlex(): void {
+    if (this.pollSubscriptionPlex) {
+      return;
+    }
+    this.pollSubscriptionPlex = interval(POLL_INTERVAL_MS)
+      .pipe(
+        switchMap(() => this.api.getIndexStatus()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((status) => {
+        this.statusPlex.set(status);
+        if (!status.running) {
+          this.pollSubscriptionPlex?.unsubscribe();
+          this.pollSubscriptionPlex = null;
           this.api.getLibrarySections().subscribe((sections) => this.sections.set(sections));
         }
       });

@@ -24,4 +24,11 @@ export class IndexingApiService {
       .post(`${this.baseUrl}/api/index/refresh`, null, { observe: 'response' })
       .pipe(map((res) => res.ok));
   }
+
+  /** Triggers a full reindex of the Plex library into the DB. */
+  triggerPlexReindex(): Observable<boolean> {
+    return this.http
+      .post(`${this.baseUrl}/api/index/reindex`, null, { observe: 'response' })
+      .pipe(map((res) => res.ok));
+  }
 }

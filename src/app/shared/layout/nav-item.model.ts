@@ -8,5 +8,6 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { label: 'PlexRAG', icon: 'forum', route: '/plexrag', adminOnly: false },
   { label: 'Indexing', icon: 'sync', route: '/indexing', adminOnly: true },
-  { label: 'Users', icon: 'group', route: '/users', adminOnly: true }
+  { label: 'Users', icon: 'group', route: '/users', adminOnly: true },
+  { label: 'Errors', icon: 'error', route: '/errors', adminOnly: true }
 ];

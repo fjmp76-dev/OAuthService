@@ -6,16 +6,6 @@
       <p class="subtitle">Sign in with your Google account to continue</p>
     </div>
 
-    <mat-button-toggle-group
-      class="mode-toggle"
-      [value]="mode()"
-      (change)="setMode($event.value)"
-      aria-label="Sign in or sign up"
-    >
-      <mat-button-toggle value="signin">Sign In</mat-button-toggle>
-      <mat-button-toggle value="signup">Sign Up</mat-button-toggle>
-    </mat-button-toggle-group>
-
     <div class="google-button-wrap">
       @if (loadingGoogle()) {
         <mat-spinner diameter="32"></mat-spinner>

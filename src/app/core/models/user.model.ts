@@ -8,3 +8,18 @@ export interface AppUser {
   pictureUrl?: string;
   accessToken?: string;
 }
+
+/** Mirrors PlexRag.Application.Dtos, consumed via the /api/users endpoints. */
+export interface UserResponse {
+  email: string;
+  name: string;
+  role: string;
+  createdAt: string;
+}
+
+export interface CreateUserRequest {
+  email: string;
+  name: string;
+  role: string;
+  createdAt: string;
+}

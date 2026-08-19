@@ -45,15 +45,6 @@
   font-size: 0.9rem;
 }
 
-.mode-toggle {
-  width: 100%;
-  display: flex;
-}
-
-.mode-toggle mat-button-toggle {
-  flex: 1;
-}
-
 .google-button-wrap {
   min-height: 44px;
   display: flex;

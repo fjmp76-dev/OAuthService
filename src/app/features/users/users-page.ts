@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { UsersService } from '../../core/services/users.service';
@@ -19,6 +20,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class UsersPage {
   private readonly usersService = inject(UsersService);
   private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   authService = inject(AuthService);
 
   readonly displayedColumns = ['email', 'name', 'role', 'createdAt', 'actions'];
@@ -30,7 +32,10 @@ export class UsersPage {
     });
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.usersService.delete(email);
+        this.usersService.delete(email).catch((err) => {
+          const message = err instanceof Error ? err.message : 'Failed to delete user.';
+          this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+        });
       }
     });
   }
