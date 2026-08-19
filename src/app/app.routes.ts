@@ -26,6 +26,11 @@ export const routes: Routes = [
         path: 'users',
         canActivate: [adminGuard],
         loadChildren: () => import('./features/users/users.routes').then((m) => m.USERS_ROUTES)
+      },
+      {
+        path: 'errors',
+        canActivate: [adminGuard],
+        loadChildren: () => import('./features/errors/errors.routes').then((m) => m.ERRORS_ROUTES)
       }
     ]
   },

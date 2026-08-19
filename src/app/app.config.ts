@@ -1,4 +1,10 @@
-import { ApplicationConfig, provideAppInitializer, inject, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  ErrorHandler,
+  provideAppInitializer,
+  inject,
+  provideBrowserGlobalErrorListeners
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -6,6 +12,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { routes } from './app.routes';
 import { apiErrorInterceptor } from './core/interceptors/api-error.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { AppErrorHandler } from './core/services/app-error-handler';
 import { AuthService } from './core/services/auth.service';
 
 export const appConfig: ApplicationConfig = {
@@ -14,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor, apiErrorInterceptor])),
-    provideAppInitializer(() => inject(AuthService).restoreSession())
+    provideAppInitializer(() => inject(AuthService).restoreSession()),
+    { provide: ErrorHandler, useClass: AppErrorHandler }
   ]
 };

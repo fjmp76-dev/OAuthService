@@ -8,7 +8,6 @@ import { UsersService } from './users.service';
 import { GoogleIdentityService } from './google-identity.service';
 import { MicrosoftIdentityService } from './microsoft-identity.service';
 
-export type AuthMode = 'signin' | 'signup';
 export type AuthResult = { ok: true } | { ok: false; message: string };
 
 @Injectable({ providedIn: 'root' })
@@ -24,76 +23,79 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.sessionSignal() !== null);
   readonly isAdmin = computed(() => this.sessionSignal()?.isAdmin ?? false);
 
-  /** Restores a previously persisted session on app bootstrap. */
-  restoreSession(): void {
+  /** Restores a previously persisted session on app bootstrap, re-validating the user against the API. */
+  async restoreSession(): Promise<void> {
     const savedEmail = this.storage.getItem<string>(SESSION_KEY);
-    if (!savedEmail) {
+    const accessToken = this.storage.getItem<string>(TOKEN_KEY) ?? undefined;
+    if (!savedEmail || !accessToken) {
+      this.clearStoredSession();
       return;
     }
+
+    try {
+      await this.usersService.loadAll(accessToken);
+    } catch {
+      this.clearStoredSession();
+      return;
+    }
+
     const user = this.usersService.findByEmail(savedEmail);
     if (!user) {
-      this.storage.removeItem(SESSION_KEY);
+      this.clearStoredSession();
       return;
     }
-    const accessToken = this.storage.getItem<string>(TOKEN_KEY) ?? undefined;
     this.sessionSignal.set({ ...this.usersService.ensureAdminFlagConsistency(user), accessToken });
   }
 
-  handleGoogleCredential(response: GoogleCredentialResponse, mode: AuthMode): AuthResult {
+  /** Signs the user in, auto-registering them on first login — no separate sign-up step. */
+  async handleGoogleCredential(response: GoogleCredentialResponse): Promise<AuthResult> {
     const payload = decodeJwtPayload<GoogleIdTokenPayload>(response.credential);
     if (!payload?.email) {
       return { ok: false, message: 'Google sign-in failed. Please try again.' };
     }
 
+    await this.usersService.loadAll(response.credential);
     const existing = this.usersService.findByEmail(payload.email);
 
-    if (mode === 'signin') {
-      if (!existing) {
-        return { ok: false, message: 'User not found. Please sign up first.' };
-      }
-      this.setSession(this.usersService.ensureAdminFlagConsistency(existing), response.credential);
+    if (existing) {
+      const user = { ...this.usersService.ensureAdminFlagConsistency(existing), pictureUrl: payload.picture };
+      this.setSession(user, response.credential);
       return { ok: true };
     }
 
-    // signup
-    if (existing) {
-      return { ok: false, message: 'This user already exists. Please sign in instead.' };
-    }
-    const created = this.usersService.create(payload.email, payload.name ?? payload.email, payload.picture);
+    const created = await this.usersService.create(
+      payload.email,
+      payload.name ?? payload.email,
+      payload.picture,
+      response.credential
+    );
     this.setSession(created, response.credential);
     return { ok: true };
   }
 
-  handleMicrosoftCredential(idToken: string, mode: AuthMode): AuthResult {
+  /** Signs the user in, auto-registering them on first login — no separate sign-up step. */
+  async handleMicrosoftCredential(idToken: string): Promise<AuthResult> {
     const payload = decodeJwtPayload<MicrosoftIdTokenPayload>(idToken);
     const email = payload?.email ?? payload?.preferred_username;
     if (!email) {
       return { ok: false, message: 'Microsoft sign-in failed. Please try again.' };
     }
 
+    await this.usersService.loadAll(idToken);
     const existing = this.usersService.findByEmail(email);
 
-    if (mode === 'signin') {
-      if (!existing) {
-        return { ok: false, message: 'User not found. Please sign up first.' };
-      }
+    if (existing) {
       this.setSession(this.usersService.ensureAdminFlagConsistency(existing), idToken);
       return { ok: true };
     }
 
-    // signup
-    if (existing) {
-      return { ok: false, message: 'This user already exists. Please sign in instead.' };
-    }
-    const created = this.usersService.create(email, payload?.name ?? email);
+    const created = await this.usersService.create(email, payload?.name ?? email, undefined, idToken);
     this.setSession(created, idToken);
     return { ok: true };
   }
 
   logout(): void {
-    this.sessionSignal.set(null);
-    this.storage.removeItem(SESSION_KEY);
-    this.storage.removeItem(TOKEN_KEY);
+    this.clearStoredSession();
     this.googleIdentity.disableAutoSelect();
     void this.microsoftIdentity.logout().catch(() => {});
     void this.router.navigateByUrl('/login');
@@ -103,5 +105,11 @@ export class AuthService {
     this.sessionSignal.set({ ...user, accessToken });
     this.storage.setItem(SESSION_KEY, user.email);
     this.storage.setItem(TOKEN_KEY, accessToken);
+  }
+
+  private clearStoredSession(): void {
+    this.sessionSignal.set(null);
+    this.storage.removeItem(SESSION_KEY);
+    this.storage.removeItem(TOKEN_KEY);
   }
 }

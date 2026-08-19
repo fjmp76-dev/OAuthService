@@ -4,5 +4,4 @@ export interface LibrarySection {
   id: string;
   title: string;
   type: string;
-  itemCount: number;
 }
